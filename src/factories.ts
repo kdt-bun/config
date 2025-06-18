@@ -43,6 +43,15 @@ export interface DefineConfigOptions extends ConfigOptions {
 
 export function defineConfig<T>(schema: ConfigSchema<T>, { argv = true, env = true, remotes = [], files = [], extensions, parsers = {}, configPathKeys = true, configUrlKeys = false, ...configOptions }: DefineConfigOptions = {}) {
     const config = new Config(schema, configOptions)
+
+    if (env) {
+        config.addSource(new EnvSource(resolveOptions(env)))
+    }
+
+    if (argv) {
+        config.addSource(new ArgvSource(resolveOptions(argv)))
+    }
+
     const jsonParser = json(parsers.json)
     const yamlParser = yaml(parsers.yaml)
     const tomlParser = toml()
@@ -67,16 +76,6 @@ export function defineConfig<T>(schema: ConfigSchema<T>, { argv = true, env = tr
 
     extensions ??= [...parsersMap.keys()]
 
-    if (remotes.length > 0) {
-        for (const remote of remotes) {
-            const { url, parser = jsonParser, ...options } = transform(resolveOptions(remote), (options) => (isString(options) ? { url: options } : options))
-
-            if (url) {
-                config.addSource(new RemoteSource(parser, { url, ...options }))
-            }
-        }
-    }
-
     if (files.length > 0) {
         for (const file of files) {
             const { path: pathOrSearchConfig, parser, ...options } = transform(resolveOptions(file), (options) => (isString(options) ? { path: { name: options, extensions } } : options))
@@ -86,16 +85,8 @@ export function defineConfig<T>(schema: ConfigSchema<T>, { argv = true, env = tr
                 throw new InvalidConfigFileError('No config file found')
             }
 
-            config.addSource(new FileSource(parser ?? getParser(path), { path, ...options, pathKeys: false }))
+            config.addSource(new FileSource(parser ?? getParser(path), { path, override: false, ...options, pathKeys: false }))
         }
-    }
-
-    if (env) {
-        config.addSource(new EnvSource(resolveOptions(env)))
-    }
-
-    if (argv) {
-        config.addSource(new ArgvSource(resolveOptions(argv)))
     }
 
     if (configPathKeys) {
@@ -107,6 +98,16 @@ export function defineConfig<T>(schema: ConfigSchema<T>, { argv = true, env = tr
             }
 
             config.addSource(new FileSource(jsonParser, { override: false, ...options, path: undefined, pathKeys: keys, resolveParser }))
+        }
+    }
+
+    if (remotes.length > 0) {
+        for (const remote of remotes) {
+            const { url, parser = jsonParser, ...options } = transform(resolveOptions(remote), (options) => (isString(options) ? { url: options } : options))
+
+            if (url) {
+                config.addSource(new RemoteSource(parser, { url, override: false, ...options }))
+            }
         }
     }
 
