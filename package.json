@@ -1,7 +1,7 @@
 {
     "name": "@kdt-bun/config",
     "type": "module",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "packageManager": "pnpm@10.12.1",
     "description": "A flexible configuration management library that supports multiple sources (CLI args, environment variables, files, remote URLs) with schema validation and type safety",
     "author": "Diep Dang <kdt310722@gmail.com>",
