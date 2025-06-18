@@ -19,7 +19,7 @@ export interface RemoteSourceOptions {
     retry?: (WithRetryOptions<unknown> & { enabled?: boolean }) | boolean
     fetch?: typeof fetch
     request?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }
-    deserialize?: (data: string) => Awaitable<string>
+    deserialize?: (data: string, resolvedConfig: AnyObject) => Awaitable<string>
     override?: boolean
     resolveParser?: RemoteParserResolver
 }
@@ -50,7 +50,7 @@ export class RemoteSource implements ConfigSource {
             return {}
         }
 
-        return this.getFetch(url, this.options)().then((content) => this.resolveParser(url, content, this.parser)(content))
+        return this.getFetch(resolvedConfig, url, this.options)().then((content) => this.resolveParser(url, content, this.parser)(content))
     }
 
     protected async handleResponse(response: Response) {
@@ -63,7 +63,7 @@ export class RemoteSource implements ConfigSource {
         return body
     }
 
-    protected getFetch(url: UrlLike, { auth, fetch = globalThis.fetch, timeout = 10_000, retry = true, request = {}, deserialize = (r) => r }: RemoteSourceOptions = {}) {
+    protected getFetch(resolvedConfig: AnyObject, url: UrlLike, { auth, fetch = globalThis.fetch, timeout = 10_000, retry = true, request = {}, deserialize = (r) => r }: RemoteSourceOptions = {}) {
         const { enabled: enabledRetry = true, ...retryOptions } = resolveOptions(retry) || { enabled: false }
 
         if (auth) {
@@ -72,7 +72,7 @@ export class RemoteSource implements ConfigSource {
         }
 
         const fetchWithTimeout = async () => {
-            return withTimeout(fetch(url, request), timeout, 'Remote fetch timed out').then((response) => this.handleResponse(response)).then((r) => deserialize(r))
+            return withTimeout(fetch(url, request), timeout, 'Remote fetch timed out').then((response) => this.handleResponse(response)).then((r) => deserialize(r, resolvedConfig))
         }
 
         if (enabledRetry) {
