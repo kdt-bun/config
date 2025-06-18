@@ -1,0 +1,3 @@
+{
+    "extends": "@kdt-bun/tsconfig"
+}

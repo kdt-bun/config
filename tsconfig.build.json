@@ -1,0 +1,9 @@
+{
+    "extends": "@kdt-bun/tsconfig/lib",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "rootDir": "./src",
+        "outDir": "./dist"
+    },
+    "include": ["src"]
+}

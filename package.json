@@ -1,0 +1,87 @@
+{
+    "name": "@kdt-bun/config",
+    "type": "module",
+    "version": "0.0.0",
+    "packageManager": "pnpm@10.12.1",
+    "description": "A flexible configuration management library that supports multiple sources (CLI args, environment variables, files, remote URLs) with schema validation and type safety",
+    "author": "Diep Dang <kdt310722@gmail.com>",
+    "license": "MIT",
+    "homepage": "https://github.com/kdt-bun/config",
+    "repository": "github:kdt-bun/config",
+    "bugs": {
+        "email": "kdt310722@gmail.com",
+        "url": "https://github.com/kdt-bun/config/issues"
+    },
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "require": "./dist/index.cjs",
+            "default": "./dist/index.js"
+        }
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "src"
+    ],
+    "scripts": {
+        "build": "rimraf dist && tsup && tsc --project ./tsconfig.build.json",
+        "test": "vitest run",
+        "coverage": "pnpm test --coverage",
+        "release": "tsx scripts/release.ts && changelogen gh release && pnpm publish",
+        "up": "ncu -i",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "typecheck": "tsc --noEmit",
+        "prepare": "only-allow pnpm && simple-git-hooks",
+        "prepublishOnly": "pnpm build"
+    },
+    "dependencies": {
+        "@kdt-bun/utils": "^0.0.5",
+        "@types/minimist": "^1.2.5",
+        "camelcase": "^8.0.0",
+        "dotenv": "^16.5.0",
+        "flat": "^6.0.1",
+        "json5": "^2.2.3",
+        "minimist": "^1.2.8",
+        "toml": "^3.0.0",
+        "yaml": "^2.8.0"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^19.8.1",
+        "@commitlint/config-conventional": "^19.8.1",
+        "@kdt-bun/eslint-config": "^0.0.1",
+        "@kdt-bun/tsconfig": "^0.0.2",
+        "@swc/core": "^1.12.1",
+        "@types/node": "^24.0.3",
+        "@vitest/coverage-v8": "3.2.4",
+        "changelogen": "^0.6.1",
+        "eslint": "^9.29.0",
+        "execa": "^9.6.0",
+        "lint-staged": "^16.1.2",
+        "npm-check-updates": "^18.0.1",
+        "only-allow": "^1.2.1",
+        "rimraf": "^6.0.1",
+        "simple-git-hooks": "^2.13.0",
+        "tsup": "^8.5.0",
+        "tsx": "^4.20.3",
+        "typescript": "^5.8.3",
+        "vitest": "^3.2.4",
+        "zod": "^3.25.67"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "commitlint": {
+        "extends": "@commitlint/config-conventional"
+    },
+    "simple-git-hooks": {
+        "commit-msg": "npx --no -- commitlint --edit ${1}",
+        "pre-commit": "npx lint-staged"
+    },
+    "lint-staged": {
+        "*": "eslint --fix"
+    }
+}
